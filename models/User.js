@@ -32,7 +32,7 @@ class User{
         return this._email;
     }
     get password(){
-        return this._npassword
+        return this._password
     }
     get photo(){
         return this._photo;

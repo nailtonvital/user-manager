@@ -7,6 +7,12 @@ class UserController{
         this.onSubmit()
     }
 
+    onEditCancel(){
+        document.querySelector("#box-user-update .btn-cancel").addEventListener("click", e=>{
+            this.showPanelCreate
+        })
+    }
+
     onSubmit(){
 
         this.formEl.addEventListener("submit", (e)=>{
@@ -17,6 +23,8 @@ class UserController{
             btn.disabled = true
 
             let values = this.getValues();
+
+            if(!values) return false;
 
             this.getPhoto()
             .then((content)=>{
@@ -31,9 +39,6 @@ class UserController{
             }, (e)=>{
                 console.log(e)
             })
-
-
-        
         });
 
     }
@@ -59,8 +64,12 @@ class UserController{
             fileReader.onerror = (e)=>{
                 reject(e)
             }
-
-            fileReader.readAsDataURL(file);
+            if(file){
+                fileReader.readAsDataURL(file);
+            } else{
+                resolve('dist/img/boxed.jpg')
+            }
+            
 
         })
 
@@ -70,8 +79,15 @@ class UserController{
     getValues(){
 
         let user = {};
+        let isValid = true;
 
-        [...this.formEl.elements].forEach((field, index)=>{
+        [...this.formEl.elements].forEach(function(field, index){
+
+            if(['name','email',"password"].indexOf(field.name) > -1 && !field.value){
+                field.parentElement.classList.add('has-error');
+                isValid = false;
+            }
+
             if(field.name == "gender"){
                 if(field.checked){
                     user[field.name] = field.value;
@@ -82,6 +98,10 @@ class UserController{
                 user[field.name] = field.value;
             }
         })
+
+        if(!isValid){
+            return false;
+        }
 
         return new User(
             user.name,
@@ -98,6 +118,8 @@ class UserController{
     addline(dataUser, tableId){
 
         let tr = document.createElement('tr')
+
+        tr.dataset.user = JSON.stringify(dataUser)
     
         tr.innerHTML = `
             <tr>
@@ -107,12 +129,45 @@ class UserController{
                 <td>${dataUser.admin ? "Sim" : "Não"}</td>
                 <td>${Utils.dateFormat(dataUser.register)}</td>
                 <td>
-                <button type="button" class="btn btn-primary btn-xs btn-flat">Editar</button>
+                <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
                 <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
                 </td>
             </tr>
-        `
+        `;
+
+        tr.querySelector(".btn-edit").addEventListener("click", e=>{
+            console.log(JSON.parse(tr.dataset.user));
+            this.showPanelUpdate
+        })
 
         this.tableId.appendChild(tr)
+
+        this.updateCount()
+    }
+
+    showPanelCreate(){
+        document.getElementById("box-user-create").style.display = "block"
+        document.getElementById("box-user-update").style.display = "none"
+    }
+
+    showPanelUpdate(){
+        document.getElementById("box-user-create").style.display = "none"
+        document.getElementById("box-user-update").style.display = "block"
+    }
+
+    updateCount(){
+        let numberUsers = 0;
+        let numberAdmin = 0;
+
+        [...this.tableId.children].forEach(tr=>{
+            numberUsers++
+
+            let user = JSON.parse(tr.dataset.user);
+
+            if(user._admin) numberAdmin++; 
+        })
+
+        document.querySelector("#number-users").innerHTML = numberUsers
+        document.querySelector("#number-users-admin").innerHTML = numberAdmin
     }
 }
