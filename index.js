@@ -1,2 +1,2 @@
- UserController = new UserController("form-user-create", "table-users");
+ UserController = new UserController("form-user-create", "form-user-update", "table-users");
 
