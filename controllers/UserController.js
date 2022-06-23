@@ -5,11 +5,12 @@ class UserController{
         this.tableId = document.getElementById(tableId);
 
         this.onSubmit()
+        this.onEdit()
     }
 
-    onEditCancel(){
+    onEdit(){
         document.querySelector("#box-user-update .btn-cancel").addEventListener("click", e=>{
-            this.showPanelCreate
+            this.showPanelCreate()
         })
     }
 
@@ -137,7 +138,7 @@ class UserController{
 
         tr.querySelector(".btn-edit").addEventListener("click", e=>{
             console.log(JSON.parse(tr.dataset.user));
-            this.showPanelUpdate
+            this.showPanelUpdate()
         })
 
         this.tableId.appendChild(tr)
